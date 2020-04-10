@@ -7,6 +7,7 @@ import (
 	"github.com/jedib0t/go-pretty/text"
 	"github.com/shirou/gopsutil/cpu"
 	"github.com/shirou/gopsutil/host"
+	"github.com/shirou/gopsutil/mem"
 )
 
 func (m *Measure) Evaluate() {
@@ -61,6 +62,11 @@ func (m *Measure) EvaluateSystem() {
 		return
 	}
 
+	var memData *mem.VirtualMemoryStat
+	if memData, err = mem.VirtualMemory(); err != nil {
+	 	return	
+	}
+
 	// simple table with zero customizations
 	tw := table.NewWriter()
 
@@ -72,6 +78,8 @@ func (m *Measure) EvaluateSystem() {
 		{"uptime (sec)", hostData.Uptime},
 		{"", ""},
 		{"cpu", cpuData[0].ModelName},
+		{"frequency (Mhz)", cpuData[0].Mhz},
+		{"memory (GB)", fmt.Sprintf("%.2f", float64(memData.Total)/1073741824.0)},
 	})
 
 	// use a ready-to-use style
